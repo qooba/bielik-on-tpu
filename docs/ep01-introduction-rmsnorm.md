@@ -77,10 +77,20 @@ lowering.
 
 ## Results on v5e-1 (via `make benchmark-rms-norm`)
 
-Across most of the swept range, Pallas and native JAX track each other closely: at
-Bielik's real hidden size of 1536, both scale up toward 60-70 GB/s, with native
-JAX actually edging slightly ahead at the largest batch sizes. Sweeping hidden size
-up to 4096 tells the same story - both curves stay tightly grouped, saturating near
+<p align="center">
+    <img src="/docs/plots/normalization/rmsnorm-bandwidth-vs-rows.png" alt="rmsnorm-bandwidth-vs-rows" style="max-width: 100%;">
+</p>
+
+Sweeping `n_rows` from 1 up to 1024 at Bielik's hidden size of 1536: across most of
+the range Pallas and native JAX track each other closely, both scaling up toward
+60-70 GB/s, with native JAX actually edging ahead at the largest batch sizes.
+
+<p align="center">
+    <img src="/docs/plots/normalization/rmsnorm-bandwidth-vs-hidden-size.png" alt="rmsnorm-bandwidth-vs-hidden-size" style="max-width: 100%;">
+</p>
+
+Sweeping `hidden_size` up to 4096 tells the same story - the curves remain tightly
+grouped around Bielik's actual hidden size of 1536 and beyond, both saturating near
 80 GB/s.
 
 | n_rows | Provider | GB/s |
