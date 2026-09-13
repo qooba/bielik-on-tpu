@@ -19,5 +19,9 @@ venv/
 
 .ipynb_checkpoints/
 
+# jupytext-style .py mirrors some editors auto-pair with a notebook -- never a
+# real source file in this repo (notebooks/ only ever holds .ipynb).
+notebooks/**/*.py
+
 .idea/
 .vscode/
