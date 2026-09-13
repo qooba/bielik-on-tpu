@@ -4,4 +4,4 @@ matplotlib
 
 # dev
 ruff~=0.15
-black~=26.3
+black[jupyter]~=26.3

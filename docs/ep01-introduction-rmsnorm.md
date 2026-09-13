@@ -51,6 +51,10 @@ PYTHONPATH=. python3 tests/test_rms_norm.py
 make benchmark-rms-norm
 ```
 
+Or run [`notebooks/normalization/rms_norm.ipynb`](/notebooks/normalization/rms_norm.ipynb)
+directly in [Google Colab](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/normalization/rms_norm.ipynb)
+on a free TPU runtime - no local setup at all.
+
 ### How the kernel works
 
 `rms_norm_pallas()` defines a 1D grid over row blocks via `pl.cdiv`. `BlockSpec`

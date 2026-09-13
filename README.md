@@ -12,9 +12,12 @@ This repository is released episode by episode, in step with the video series.
 
 ## Series Overview
 
-| # | Episode | Key Result | Triton/GPU counterpart |
-|---|---------|------------|-------------------------|
-| 01 | [Introduction & RMSNorm](/docs/ep01-introduction-rmsnorm.md) | Bielik's architecture, the JAX/Pallas/Mosaic stack, and a fused single-pass RMSNorm Pallas TPU kernel | [ep03](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep03-rmsnorm-softmax-fused.md) |
+Each episode has a companion Colab notebook - click the badge to open it and run
+the correctness check and benchmark on a free TPU, no local setup required.
+
+| # | Episode | Key Result | Doc | Triton/GPU counterpart | Colab |
+|---|---------|------------|-----|-------------------------|-------|
+| 01 | Introduction & RMSNorm | Bielik's architecture, the JAX/Pallas/Mosaic stack, and a fused single-pass RMSNorm Pallas TPU kernel | [link](/docs/ep01-introduction-rmsnorm.md) | [ep03](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep03-rmsnorm-softmax-fused.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/normalization/rms_norm.ipynb) |
 
 More episodes land here as they're released.
 
@@ -28,12 +31,15 @@ bielik-on-tpu/
 │   ├── common/                #   bench.py (do_bench), plotting.py
 │   └── normalization/         #   benchmark_rms_norm.py
 ├── tests/                    # Correctness-only tests, runnable locally with no TPU (Pallas interpret mode)
+├── notebooks/                # Colab companion notebooks - one per kernel
 └── docs/                     # Episode docs
 ```
 
 ## Constraints
 
-- **Pure `.py` scripts, no Jupyter notebooks as source.**
+- **Pure `.py` scripts are the source of truth, not notebooks.** Each notebook in
+  `notebooks/` just clones the repo and imports the real `kernels`/`benchmarks`
+  modules, so it can never drift out of sync with the code.
 - **No local TPU required for development.** Local iteration uses `jax` (CPU-only)
   with Pallas `interpret=True` to catch logic bugs for free; a real TPU is only
   needed to confirm Mosaic lowering and collect real performance numbers.
@@ -54,6 +60,11 @@ PYTHONPATH=. .venv/bin/python tests/test_rms_norm.py
 pip install jax[tpu]==0.11.1 numpy matplotlib
 make benchmark-rms-norm
 ```
+
+No GPU/TPU of your own? Open [`notebooks/normalization/rms_norm.ipynb`](/notebooks/normalization/rms_norm.ipynb)
+in [Google Colab](https://colab.research.google.com/) (select a TPU runtime) to
+clone this repo, run the correctness check, and produce the benchmark plots
+directly in the browser.
 
 ## Development
 
