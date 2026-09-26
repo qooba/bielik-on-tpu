@@ -18,6 +18,7 @@ the correctness check and benchmark on a free TPU, no local setup required.
 | # | Episode | Key Result | Doc | Triton/GPU counterpart | Colab |
 |---|---------|------------|-----|-------------------------|-------|
 | 01 | Introduction & RMSNorm | Bielik's architecture, the JAX/Pallas/Mosaic stack, and a fused single-pass RMSNorm Pallas TPU kernel | [link](/docs/ep01-introduction-rmsnorm.md) | [ep03](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep03-rmsnorm-softmax-fused.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/normalization/rms_norm.ipynb) |
+| 02 | [Matmul](/docs/ep02-matmul.md) | Tiled Pallas TPU matmul kernel; JAX Native 2-3x faster at first, reversed once a hand-rolled autotuner closed the gap | [link](/docs/ep02-matmul.md) | [ep02](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep02-matmul.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/matmul/matmul.ipynb) |
 
 More episodes land here as they're released.
 
@@ -26,10 +27,13 @@ More episodes land here as they're released.
 ```
 bielik-on-tpu/
 ├── kernels/                 # JAX Pallas TPU kernels, one file per op: jax ref + pallas kernel together
-│   └── normalization/        #   rms_norm.py
+│   ├── common/                #   precision.py (dot_precision), tile_candidates.py (autotuning pools)
+│   ├── normalization/        #   rms_norm.py
+│   └── matmul/                #   matmul.py, autotune.py
 ├── benchmarks/               # Performance benchmarks (bandwidth/TFLOPS sweeps)
 │   ├── common/                #   bench.py (do_bench), plotting.py
-│   └── normalization/         #   benchmark_rms_norm.py
+│   ├── normalization/         #   benchmark_rms_norm.py
+│   └── matmul/                #   benchmark_matmul.py
 ├── tests/                    # Correctness-only tests, runnable locally with no TPU (Pallas interpret mode)
 ├── notebooks/                # Colab companion notebooks - one per kernel
 └── docs/                     # Episode docs
@@ -55,16 +59,19 @@ cd bielik-on-tpu
 python3 -m venv .venv
 .venv/bin/pip install jax==0.11.1 numpy matplotlib
 PYTHONPATH=. .venv/bin/python tests/test_rms_norm.py
+PYTHONPATH=. .venv/bin/python tests/test_matmul.py
 
-# Real TPU (e.g. a Google Colab v5e-1 runtime): run the benchmark
+# Real TPU (e.g. a Google Colab v5e-1 runtime): run the benchmarks
 pip install jax[tpu]==0.11.1 numpy matplotlib
 make benchmark-rms-norm
+make benchmark-matmul
 ```
 
-No GPU/TPU of your own? Open [`notebooks/normalization/rms_norm.ipynb`](/notebooks/normalization/rms_norm.ipynb)
-in [Google Colab](https://colab.research.google.com/) (select a TPU runtime) to
-clone this repo, run the correctness check, and produce the benchmark plots
-directly in the browser.
+No GPU/TPU of your own? Open a notebook directly in
+[Google Colab](https://colab.research.google.com/) (select a TPU runtime) to
+clone this repo, run the correctness check, and produce the benchmark plots in
+the browser: [`notebooks/normalization/rms_norm.ipynb`](/notebooks/normalization/rms_norm.ipynb),
+[`notebooks/matmul/matmul.ipynb`](/notebooks/matmul/matmul.ipynb).
 
 ## Development
 

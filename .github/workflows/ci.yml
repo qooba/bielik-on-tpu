@@ -27,4 +27,4 @@ jobs:
           python-version: "3.12"
       - run: pip install jax==0.11.1 numpy
       - name: Run kernel tests (Pallas interpret mode, CPU)
-        run: PYTHONPATH=. python tests/test_rms_norm.py
+        run: make test

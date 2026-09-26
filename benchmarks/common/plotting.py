@@ -7,6 +7,7 @@ import numpy as np
 COLORS = {
     "pallas": "#2E86AB",
     "jax_native": "#A23B72",
+    "pallas_autotuned": "#5CB85C",
 }
 
 
