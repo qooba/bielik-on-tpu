@@ -4,6 +4,12 @@
 
 ---
 
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=n7tPt-7SQbU">
+        <img src="https://img.youtube.com/vi/n7tPt-7SQbU/sddefault.jpg" alt="Episode 1: Introduction" style="max-width: 100%;">
+    </a>
+</p>
+
 ## Overview
 
 This episode moves the [`bielik-anatomy-triton`](https://github.com/qooba/bielik-anatomy-triton)
