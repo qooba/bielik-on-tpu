@@ -4,6 +4,13 @@
 
 ---
 
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=2aIVlj6uaSE">
+        <img src="https://img.youtube.com/vi/2aIVlj6uaSE/sddefault.jpg" alt="Episode 1: Introduction" style="max-width: 100%;">
+    </a>
+</p>
+
+
 ## Overview
 
 Episode 1 built RMSNorm - memory-bound, one row independent of the next, and a
