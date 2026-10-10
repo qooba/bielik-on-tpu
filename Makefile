@@ -6,6 +6,7 @@ install:
 
 test:
 	PYTHONPATH=. python3 tests/test_rms_norm.py
+	PYTHONPATH=. python3 tests/test_rms_norm_autotune.py
 	PYTHONPATH=. python3 tests/test_matmul.py
 	PYTHONPATH=. python3 tests/test_matmul_autotune.py
 

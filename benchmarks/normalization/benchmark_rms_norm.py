@@ -8,21 +8,36 @@ import jax.numpy as jnp
 
 from benchmarks.common.bench import device_name, do_bench, pick_block_size, tflops
 from benchmarks.common.plotting import COLORS, plot_summary_comparison
+from kernels.normalization.autotune import autotune_rms_norm
 from kernels.normalization.rms_norm import rms_norm_pallas, rms_norm_ref
 
 EPS = 1e-6
 BLOCK_ROWS = 128
 
+AUTOTUNE_WARMUP = 1
+AUTOTUNE_REP = 3
+
+_LAST_AUTOTUNED_BLOCK_ROWS: int | None = None
+
 PROVIDERS = [
     ("pallas", "Pallas (fused)"),
+    ("pallas_autotuned", "Pallas (autotuned)"),
     ("jax_native", "JAX Native (jit-fused)"),
 ]
 
 
 def _provider_fn(provider: str, x: jnp.ndarray, w: jnp.ndarray, block_rows: int):
+    global _LAST_AUTOTUNED_BLOCK_ROWS
     if provider == "pallas":
         return lambda: rms_norm_pallas(x, w, eps=EPS, block_rows=block_rows)
-    else:
+    elif provider == "pallas_autotuned":
+        n_rows, hidden_size = x.shape
+        br = autotune_rms_norm(
+            n_rows, hidden_size, eps=EPS, dtype=x.dtype, warmup=AUTOTUNE_WARMUP, rep=AUTOTUNE_REP
+        )
+        _LAST_AUTOTUNED_BLOCK_ROWS = br
+        return lambda: rms_norm_pallas(x, w, eps=EPS, block_rows=br)
+    else:  # jax_native
         jitted = jax.jit(lambda x, w: rms_norm_ref(x, w, eps=EPS))
         jitted(x, w)
         return lambda: jitted(x, w)
@@ -62,7 +77,10 @@ def _run_sweep(
             results[key]["median"].append(_rms_norm_gbps(median, n_rows, hidden_size, x.itemsize))
             results[key]["low"].append(_rms_norm_gbps(high, n_rows, hidden_size, x.itemsize))
             results[key]["high"].append(_rms_norm_gbps(low, n_rows, hidden_size, x.itemsize))
-            row.append(f"{label}={results[key]['median'][-1]:.1f} GB/s")
+            suffix = (
+                f" block_rows={_LAST_AUTOTUNED_BLOCK_ROWS}" if key == "pallas_autotuned" else ""
+            )
+            row.append(f"{label}={results[key]['median'][-1]:.1f} GB/s{suffix}")
         print("  " + "  ".join(row))
 
     if save_path:
@@ -115,7 +133,7 @@ def print_summary(hidden_size=1536, n_rows_list=None, save_path=""):
     print("=" * 75)
     print(f"  Bielik config: hidden_size={hidden_size}, dtype=float32, device: {device_name()}")
     print("=" * 75)
-    print(f"  {'n_rows':<8} {'Provider':<24} {'ms':>8} {'GB/s':>10} {'TFLOPS':>10}")
+    print(f"  {'n_rows':<8} {'Provider':<24} {'ms':>8} {'GB/s':>10} {'TFLOPS':>10}  {'block_rows'}")
     print("-" * 75)
 
     data_dict = {label: [] for _, label in PROVIDERS}
@@ -133,7 +151,11 @@ def print_summary(hidden_size=1536, n_rows_list=None, save_path=""):
             gbps_val = _rms_norm_gbps(ms, n_rows, hidden_size, x.itemsize)
             tflops_val = tflops(ms, 4 * n_rows * hidden_size)
             data_dict[label].append([gbps_val, tflops_val])
-            print(f"  {n_rows:<8} {label:<24} {ms:>8.3f} {gbps_val:>10.1f} {tflops_val:>10.4f}")
+            block_info = _LAST_AUTOTUNED_BLOCK_ROWS if key == "pallas_autotuned" else ""
+            print(
+                f"  {n_rows:<8} {label:<24} {ms:>8.3f} {gbps_val:>10.1f} {tflops_val:>10.4f}  "
+                f"{block_info}"
+            )
         print()
 
     if save_path:
@@ -153,7 +175,7 @@ def print_summary(hidden_size=1536, n_rows_list=None, save_path=""):
 
 def run_benchmark(save_plots: bool = False, plot_dir: str = ".") -> None:
     print("=" * 75)
-    print("RMSNorm Benchmark: Pallas vs JAX Native")
+    print("RMSNorm Benchmark: Pallas vs Pallas (autotuned) vs JAX Native")
     print("=" * 75)
     print(f"Device: {device_name()}")
     print()
