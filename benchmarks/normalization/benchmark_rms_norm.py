@@ -29,14 +29,18 @@ PROVIDERS = [
 def _provider_fn(provider: str, x: jnp.ndarray, w: jnp.ndarray, block_rows: int):
     global _LAST_AUTOTUNED_BLOCK_ROWS
     if provider == "pallas":
-        return lambda: rms_norm_pallas(x, w, eps=EPS, block_rows=block_rows)
+        jitted = jax.jit(rms_norm_pallas, static_argnames=("eps", "block_rows", "interpret"))
+        jitted(x, w, eps=EPS, block_rows=block_rows)
+        return lambda: jitted(x, w, eps=EPS, block_rows=block_rows)
     elif provider == "pallas_autotuned":
         n_rows, hidden_size = x.shape
         br = autotune_rms_norm(
             n_rows, hidden_size, eps=EPS, dtype=x.dtype, warmup=AUTOTUNE_WARMUP, rep=AUTOTUNE_REP
         )
         _LAST_AUTOTUNED_BLOCK_ROWS = br
-        return lambda: rms_norm_pallas(x, w, eps=EPS, block_rows=br)
+        jitted = jax.jit(rms_norm_pallas, static_argnames=("eps", "block_rows", "interpret"))
+        jitted(x, w, eps=EPS, block_rows=br)
+        return lambda: jitted(x, w, eps=EPS, block_rows=br)
     else:  # jax_native
         jitted = jax.jit(lambda x, w: rms_norm_ref(x, w, eps=EPS))
         jitted(x, w)

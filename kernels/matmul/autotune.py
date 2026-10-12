@@ -12,6 +12,10 @@ from kernels.common.tile_candidates import (
 )
 from kernels.matmul.matmul import matmul_pallas
 
+_jit_matmul_pallas = jax.jit(
+    matmul_pallas, static_argnames=("block_m", "block_n", "block_k", "interpret")
+)
+
 __all__ = [
     "block_m_candidates",
     "block_n_or_k_candidates",
@@ -52,11 +56,11 @@ def _time_config(
     rep: int,
 ) -> float:
     for _ in range(warmup):
-        jax.block_until_ready(matmul_pallas(a, b, bias, block_m, block_n, block_k, interpret))
+        jax.block_until_ready(_jit_matmul_pallas(a, b, bias, block_m, block_n, block_k, interpret))
     times = []
     for _ in range(rep):
         t0 = time.perf_counter()
-        jax.block_until_ready(matmul_pallas(a, b, bias, block_m, block_n, block_k, interpret))
+        jax.block_until_ready(_jit_matmul_pallas(a, b, bias, block_m, block_n, block_k, interpret))
         times.append(time.perf_counter() - t0)
     times.sort()
     return times[len(times) // 2]

@@ -24,7 +24,9 @@ def _provider_fn(
 ):
     global _LAST_AUTOTUNED_CONFIG
     if provider == "pallas":
-        return lambda: matmul_pallas(a, b, block_m=block_m, block_n=block_n, block_k=block_k)
+        jitted = jax.jit(matmul_pallas, static_argnames=("block_m", "block_n", "block_k"))
+        jitted(a, b, block_m=block_m, block_n=block_n, block_k=block_k)
+        return lambda: jitted(a, b, block_m=block_m, block_n=block_n, block_k=block_k)
     elif provider == "pallas_autotuned":
         M, K = a.shape
         _, N = b.shape
@@ -32,7 +34,9 @@ def _provider_fn(
             M, K, N, dtype=a.dtype, warmup=AUTOTUNE_WARMUP, rep=AUTOTUNE_REP
         )
         _LAST_AUTOTUNED_CONFIG = (bm, bn, bk)
-        return lambda: matmul_pallas(a, b, block_m=bm, block_n=bn, block_k=bk)
+        jitted = jax.jit(matmul_pallas, static_argnames=("block_m", "block_n", "block_k"))
+        jitted(a, b, block_m=bm, block_n=bn, block_k=bk)
+        return lambda: jitted(a, b, block_m=bm, block_n=bn, block_k=bk)
     else:  # jax_native
         jitted = jax.jit(matmul_ref)
         jitted(a, b)

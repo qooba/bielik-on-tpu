@@ -23,7 +23,6 @@ def _rms_norm_kernel(x_ref, w_ref, o_ref, *, eps):
     o_ref[...] = (x_norm * w).astype(x.dtype)
 
 
-@functools.partial(jax.jit, static_argnames=("eps", "block_rows", "interpret"))
 def rms_norm_pallas(
     x: jnp.ndarray,
     w: jnp.ndarray,

@@ -6,6 +6,8 @@ import jax.numpy as jnp
 from kernels.common.tile_candidates import block_m_candidates
 from kernels.normalization.rms_norm import rms_norm_pallas
 
+_jit_rms_norm_pallas = jax.jit(rms_norm_pallas, static_argnames=("eps", "block_rows", "interpret"))
+
 _CACHE: dict[tuple, int] = {}
 
 
@@ -33,13 +35,13 @@ def _time_config(
 ) -> float:
     for _ in range(warmup):
         jax.block_until_ready(
-            rms_norm_pallas(x, w, eps=eps, block_rows=block_rows, interpret=interpret)
+            _jit_rms_norm_pallas(x, w, eps=eps, block_rows=block_rows, interpret=interpret)
         )
     times = []
     for _ in range(rep):
         t0 = time.perf_counter()
         jax.block_until_ready(
-            rms_norm_pallas(x, w, eps=eps, block_rows=block_rows, interpret=interpret)
+            _jit_rms_norm_pallas(x, w, eps=eps, block_rows=block_rows, interpret=interpret)
         )
         times.append(time.perf_counter() - t0)
     times.sort()

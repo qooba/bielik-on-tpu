@@ -50,7 +50,6 @@ def _matmul_bias_kernel(a_ref, b_ref, bias_ref, o_ref, acc_ref, *, k_steps, bloc
         o_ref[...] = (acc_ref[...] + bias_ref[...]).astype(o_ref.dtype)
 
 
-@functools.partial(jax.jit, static_argnames=("block_m", "block_n", "block_k", "interpret"))
 def matmul_pallas(
     a: jnp.ndarray,
     b: jnp.ndarray,
