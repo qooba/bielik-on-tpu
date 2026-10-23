@@ -4,6 +4,13 @@
 
 ---
 
+<p align="center">
+    <a href="https://www.youtube.com/watch?v=0b7lAtT_NzE">
+        <img src="https://img.youtube.com/vi/0b7lAtT_NzE/sddefault.jpg" alt="Episode 1: Introduction" style="max-width: 100%;">
+    </a>
+</p>
+
+
 ## Overview
 
 Episodes 1 and 2 measured RMSNorm and matmul with wall-clock benchmarks -
