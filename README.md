@@ -19,6 +19,7 @@ the correctness check and benchmark on a free TPU, no local setup required.
 |---|---------|------------|-----|-------------------------|-------|
 | 01 | Introduction & RMSNorm | Bielik's architecture, the JAX/Pallas/Mosaic stack, and a fused single-pass RMSNorm Pallas TPU kernel | [link](/docs/ep01-introduction-rmsnorm.md) | [ep03](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep03-rmsnorm-softmax-fused.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/normalization/rms_norm.ipynb) |
 | 02 | [Matmul](/docs/ep02-matmul.md) | Tiled Pallas TPU matmul kernel; JAX Native 2-3x faster at first, reversed once a hand-rolled autotuner closed the gap | [link](/docs/ep02-matmul.md) | [ep02](https://github.com/qooba/bielik-anatomy-triton/blob/main/docs/ep02-matmul.md) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/matmul/matmul.ipynb) |
+| 03 | [Profiling (Xprof)](/docs/ep03-xprof-profiling.md) | `jax.profiler` traces + compiled HLO text reveal the host/device gap behind episode 1's result, a Pallas blind spot in XLA's cost model (and its `cost_estimate` fix), and an independent, device-only confirmation of episode 2's autotuning win | [link](/docs/ep03-xprof-profiling.md) | - | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/qooba/bielik-on-tpu/blob/main/notebooks/profiling/profiling.ipynb) |
 
 More episodes land here as they're released.
 
@@ -35,7 +36,7 @@ bielik-on-tpu/
 │   ├── normalization/         #   benchmark_rms_norm.py
 │   └── matmul/                #   benchmark_matmul.py
 ├── tests/                    # Correctness-only tests, runnable locally with no TPU (Pallas interpret mode)
-├── notebooks/                # Colab companion notebooks - one per kernel
+├── notebooks/                # Colab companion notebooks - one per kernel, plus profiling/ (episode 3)
 └── docs/                     # Episode docs
 ```
 
@@ -71,7 +72,8 @@ No GPU/TPU of your own? Open a notebook directly in
 [Google Colab](https://colab.research.google.com/) (select a TPU runtime) to
 clone this repo, run the correctness check, and produce the benchmark plots in
 the browser: [`notebooks/normalization/rms_norm.ipynb`](/notebooks/normalization/rms_norm.ipynb),
-[`notebooks/matmul/matmul.ipynb`](/notebooks/matmul/matmul.ipynb).
+[`notebooks/matmul/matmul.ipynb`](/notebooks/matmul/matmul.ipynb),
+[`notebooks/profiling/profiling.ipynb`](/notebooks/profiling/profiling.ipynb).
 
 ## Development
 
